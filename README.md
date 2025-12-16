@@ -15,19 +15,20 @@ EliteInvest Track is a web application that aggregates and displays public inves
 
 ## Setup Instructions
 
-### 1. Database Setup
+### 1. Database Setup (Cloud)
 
-Ensure PostgreSQL is running and create a database named `eliteinvest`.
+You can use a free cloud PostgreSQL database (e.g., [Neon](https://neon.tech) or [Supabase](https://supabase.com)).
 
-```bash
-# If using psql CLI
-CREATE DATABASE eliteinvest;
+1.  Sign up for **Neon** (it's the easiest).
+2.  Create a project.
+3.  Copy the **Connection String** (it starts with `postgres://...`).
+4.  Open `server/.env` and replace the `DATABASE_URL` with your new connection string:
+
+```
+DATABASE_URL=postgres://user:password@ep-cool-site.us-east-2.aws.neon.tech/neondb?sslmode=require
 ```
 
-Update the `server/.env` file if your database credentials differ from the default:
-```
-DATABASE_URL=postgres://postgres:password@localhost:5432/eliteinvest
-```
+**Note**: The app is configured to use SSL, which is required by most cloud providers.
 
 ### 2. Backend Setup
 
@@ -75,17 +76,31 @@ The client will run on `http://localhost:5173` (or similar).
 - **Profile**: View detailed transaction history and volume charts for an entity.
 - **Auth**: Sign up and login (JWT based).
 
-## Deployment
+## Deployment on Vercel
 
-### Heroku (Backend)
-1. Create a Heroku app.
-2. Add Heroku Postgres addon.
-3. Push `server` subtree to Heroku.
-4. Set `JWT_SECRET` config var.
+Since this is a monorepo (client and server in one repo), you will deploy **two separate projects** in Vercel from the same Git repository.
 
-### Vercel/Netlify (Frontend)
-1. Deploy the `client` directory.
-2. Update `client/src/api/axios.js` to point to the deployed backend URL.
+### 1. Deploy Backend (API)
+1.  Import your GitHub repository into Vercel.
+2.  Name the project `eliteinvest-api` (or similar).
+3.  **Framework Preset**: Select `Other`.
+4.  **Root Directory**: Click "Edit" and select `server`.
+5.  **Environment Variables**: Add the following:
+    -   `DATABASE_URL`: (Your Neon connection string)
+    -   `JWT_SECRET`: (Any specific string)
+6.  Click **Deploy**.
+7.  Once deployed, copy the **Domain** (e.g., `eliteinvest-api.vercel.app`).
+
+### 2. Deploy Frontend
+1.  Import the same GitHub repository again into Vercel.
+2.  Name the project `eliteinvest-web`.
+3.  **Framework Preset**: Vercel should auto-detect `Vite`.
+4.  **Root Directory**: Click "Edit" and select `client`.
+5.  **Environment Variables**: Add the following:
+    -   `VITE_API_URL`: `https://<YOUR-API-DOMAIN>/api` (e.g., `https://eliteinvest-api.vercel.app/api`)
+6.  Click **Deploy**.
+
+Your app is now live!
 
 ## Limitations (MVP)
 
